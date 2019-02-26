@@ -32,7 +32,7 @@ func yamlTypeDisplay(v interface{}) string {
 	if t.Kind() == reflect.String {
 		return `"` + display + `"`
 	}
-	if t.String() == "time.Duration" || t.String() == "time.Time" {
+	if t.String() == durationName || t.String() == timeName {
 		return fmt.Sprintf("\"%s\"", v)
 	}
 	return display
@@ -117,7 +117,7 @@ func envTypeDisplay(v interface{}) string {
 	if t.String() == "time.Duration" {
 		return fmt.Sprintf(`"%s"`, v)
 	}
-	if t.String() == "time.Time" {
+	if t.String() == timeName {
 		return `"` + vv.Interface().(time.Time).Format(time.RFC3339Nano) + `"`
 	}
 	return display

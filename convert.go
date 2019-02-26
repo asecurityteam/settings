@@ -7,6 +7,11 @@ import (
 	"strings"
 )
 
+const (
+	timeName     = "time.Time"
+	durationName = "time.Duration"
+)
+
 type namer interface {
 	Name() string
 }
@@ -91,7 +96,7 @@ func Convert(v interface{}) (Group, error) {
 			return nil, fmt.Errorf("%s field %s.%s must be a pointer type", currentV.Type(), name, currentF.Name)
 		}
 		if currentVV.Kind() != reflect.Struct ||
-			currentVV.Type().String() == "time.Time" {
+			currentVV.Type().String() == timeName {
 			set, err := settingFromValue(currentF.Name, desc, currentVV)
 			if err != nil {
 				return nil, fmt.Errorf(
@@ -114,7 +119,7 @@ func Convert(v interface{}) (Group, error) {
 
 func settingFromValue(name string, description string, v reflect.Value) (Setting, error) {
 	switch v.Type().String() {
-	case "time.Time":
+	case timeName:
 		s := &TimeSetting{
 			BaseSetting: &BaseSetting{
 				NameValue:        name,
@@ -124,7 +129,7 @@ func settingFromValue(name string, description string, v reflect.Value) (Setting
 		sv := reflect.Indirect(reflect.ValueOf(s))
 		sv.FieldByName("TimeValue").Set(v.Addr())
 		return s, nil
-	case "time.Duration":
+	case durationName:
 		s := &DurationSetting{
 			BaseSetting: &BaseSetting{
 				NameValue:        name,
@@ -278,7 +283,7 @@ func settingFromValue(name string, description string, v reflect.Value) (Setting
 		sv.FieldByName("StringValue").Set(v.Addr())
 		return s, nil
 	case reflect.Slice:
-		if v.Type().Elem().String() == "time.Duration" {
+		if v.Type().Elem().String() == durationName {
 			s := &DurationSliceSetting{
 				BaseSetting: &BaseSetting{
 					NameValue:        name,

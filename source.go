@@ -215,11 +215,9 @@ type PrefixSource struct {
 
 // Get a value with a prefixed path.
 func (s *PrefixSource) Get(ctx context.Context, path ...string) (interface{}, bool) {
-	path = append(path, s.Prefix...)
-	copy(path[len(s.Prefix):], path[0:])
-	for offset, p := range s.Prefix {
-		path[offset] = p
-	}
+	path = append(path, s.Prefix...)     // allocate correct size
+	copy(path[len(s.Prefix):], path[0:]) // shift original elements
+	copy(path, s.Prefix)                 // re-insert prefix values
 	return s.Source.Get(ctx, path...)
 }
 

@@ -36,12 +36,12 @@ func Test_typeHint(t *testing.T) {
 		{
 			name: "duration",
 			v:    time.Second,
-			want: "time.Duration",
+			want: durationName,
 		},
 		{
 			name: "time",
 			v:    time.Now(),
-			want: "time.Time",
+			want: timeName,
 		},
 		{
 			name: "string slice",
