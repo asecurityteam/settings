@@ -667,20 +667,25 @@ func (s *StringSliceSetting) SetValue(v interface{}) error {
 	return err
 }
 
+// StringMapStringSliceSetting manages an instance of map[string][]string.
 type StringMapStringSliceSetting struct {
 	*BaseSetting
 	StringMapStringSliceValue *map[string][]string
 }
 
+// Value returns the underlying map[string][]string.
 func (m *StringMapStringSliceSetting) Value() interface{} {
 	return *m.StringMapStringSliceValue
 }
 
+// SetValue changes the underlying map[string][]string.
 func (m *StringMapStringSliceSetting) SetValue(v interface{}) error {
 	var err error
 	*m.StringMapStringSliceValue, err = cast.ToStringMapStringSliceE(v)
 	return err
 }
+
+// NewStringMapStringSliceSetting creates a StringMapStringSliceSetting with the given default value.
 func NewStringMapStringSliceSetting(name string, description string, fallback map[string][]string) *StringMapStringSliceSetting {
 	return &StringMapStringSliceSetting{
 		BaseSetting: &BaseSetting{

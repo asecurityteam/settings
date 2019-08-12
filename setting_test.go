@@ -1,13 +1,12 @@
 package settings
 
 import (
-	"fmt"
 	"reflect"
 	"testing"
 	"time"
 )
 
-func getParsedYamlTestFixture() map[string]interface{}{
+func getParsedYamlTestFixture(t *testing.T) map[string]interface{} {
 	yamlTestString := `
 animals:
   - cats
@@ -16,7 +15,7 @@ animals:
 `
 	testS, err := NewYAMLSource([]byte(yamlTestString))
 	if err != nil {
-		fmt.Println(err)
+		t.Errorf("failed to parse YAML test fixture due to %s", err)
 	}
 	return testS.Map
 }
@@ -170,18 +169,18 @@ func TestSetting(t *testing.T) {
 			bad:      make(map[string]interface{}),
 		},
 		{
-			name: "StringMapStringSlice from JSON",
-			setting: NewStringMapStringSliceSetting("StringMapStringSlice", "", nil),
-			good: `{"animals": ["cats", "dogs", "fish"]}`,
-			expected: map[string][]string{"animals":{"cats", "dogs", "fish"}},
-			bad: `{"animal": "dog"}`,
+			name:     "StringMapStringSlice from JSON",
+			setting:  NewStringMapStringSliceSetting("StringMapStringSlice", "", nil),
+			good:     `{"animals": ["cats", "dogs", "fish"]}`,
+			expected: map[string][]string{"animals": {"cats", "dogs", "fish"}},
+			bad:      `{"animal": "dog"}`,
 		},
 		{
-			name: "StringMapStringSlice from YAML",
-			setting: NewStringMapStringSliceSetting("StringMapStringSlice", "", nil),
-			good: getParsedYamlTestFixture(),
-			expected: map[string][]string{"animals":{"cats", "dogs", "fish"}},
-			bad: `- animal - dog`,
+			name:     "StringMapStringSlice from YAML",
+			setting:  NewStringMapStringSliceSetting("StringMapStringSlice", "", nil),
+			good:     getParsedYamlTestFixture(t),
+			expected: map[string][]string{"animals": {"cats", "dogs", "fish"}},
+			bad:      `- animal - dog`,
 		},
 	}
 	for _, tt := range tests {
