@@ -154,6 +154,13 @@ func TestSetting(t *testing.T) {
 			expected: []string{"one", "two", "three"},
 			bad:      make(map[string]interface{}),
 		},
+		{
+			name: "StringMapStringSlice",
+			setting: NewStringMapStringSliceSetting("StringMapStringSlice", "", nil),
+			good: map[string][]string{"a":{"a", "c"}},
+			expected: map[string][]string{"a":{"a", "c"}},
+			bad: "false",
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
