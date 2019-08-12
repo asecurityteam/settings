@@ -666,3 +666,28 @@ func (s *StringSliceSetting) SetValue(v interface{}) error {
 	*s.StringSliceValue, err = cast.ToStringSliceE(v)
 	return err
 }
+
+type StringMapStringSliceSetting struct {
+	*BaseSetting
+	StringMapStringSliceValue *map[string][]string
+}
+
+
+func (m *StringMapStringSliceSetting) Value() interface{} {
+	return *m.StringMapStringSliceValue
+}
+
+func (m *StringMapStringSliceSetting) SetValue(v interface{}) error {
+	var err error
+	*m.StringMapStringSliceValue, err = cast.ToStringMapStringSliceE(v)
+	return err
+}
+func NewStringMapStringSliceSetting(name string, description string, fallback map[string][]string) *StringMapStringSliceSetting {
+	return &StringMapStringSliceSetting{
+		BaseSetting: &BaseSetting{
+			NameValue: name,
+			DescriptionValue: description,
+		},
+		StringMapStringSliceValue: &fallback,
+	}
+}
