@@ -157,9 +157,9 @@ func TestSetting(t *testing.T) {
 		{
 			name: "StringMapStringSlice",
 			setting: NewStringMapStringSliceSetting("StringMapStringSlice", "", nil),
-			good: map[string][]string{"a":{"a", "c"}},
-			expected: map[string][]string{"a":{"a", "c"}},
-			bad: "false",
+			good: `{"animals": ["cats", "dogs", "fish"]}`,
+			expected: map[string][]string{"animals":{"cats", "dogs", "fish"}},
+			bad: `{"animal": "dog"}`,
 		},
 	}
 	for _, tt := range tests {
