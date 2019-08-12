@@ -672,7 +672,6 @@ type StringMapStringSliceSetting struct {
 	StringMapStringSliceValue *map[string][]string
 }
 
-
 func (m *StringMapStringSliceSetting) Value() interface{} {
 	return *m.StringMapStringSliceValue
 }
@@ -685,7 +684,7 @@ func (m *StringMapStringSliceSetting) SetValue(v interface{}) error {
 func NewStringMapStringSliceSetting(name string, description string, fallback map[string][]string) *StringMapStringSliceSetting {
 	return &StringMapStringSliceSetting{
 		BaseSetting: &BaseSetting{
-			NameValue: name,
+			NameValue:        name,
 			DescriptionValue: description,
 		},
 		StringMapStringSliceValue: &fallback,

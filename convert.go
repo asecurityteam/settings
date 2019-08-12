@@ -194,10 +194,10 @@ func settingFromValue(name string, description string, v reflect.Value) (Setting
 		return s, nil
 	case reflect.Map:
 		vTypeStored := v.Type()
-		if vTypeStored.String() == "map[string][]string"{
+		if vTypeStored.String() == "map[string][]string" {
 			s := &StringMapStringSliceSetting{
 				BaseSetting: &BaseSetting{
-					NameValue: name,
+					NameValue:        name,
 					DescriptionValue: description,
 				},
 			}
