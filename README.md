@@ -257,6 +257,17 @@ replacing the type converters with something else. These elements, in possible
 conjunction with elements from the Hierarchy API, are flexible enough to build
 anything you need.
 
+## Special Type Parsing and Casting
+The `cast` library we use falls back to JSON for complex types expressed as string values.
+**TODO** Simple examples for the following types to show how they are parsed
+- map[string][]string
+- []string
+- time.Time
+- time.Duration
+
+**NOTE:** Trying to set a `EnvSource` setting of type `map[string][]string` will likely fail,
+but setting an environment variable to this type of value is rare so this shouldn't be a common problem.
+
 <a id="markdown-contributing" name="contributing"></a>
 ## Contributing
 
