@@ -194,7 +194,8 @@ func settingFromValue(name string, description string, v reflect.Value) (Setting
 		return s, nil
 	case reflect.Map:
 		vTypeStored := v.Type()
-		if vTypeStored.String() == "map[string][]string" {
+		switch vTypeStored.String(){
+		case "map[string][]string":
 			s := &StringMapStringSliceSetting{
 				BaseSetting: &BaseSetting{
 					NameValue:        name,
@@ -204,8 +205,9 @@ func settingFromValue(name string, description string, v reflect.Value) (Setting
 			sv := reflect.Indirect(reflect.ValueOf(s))
 			sv.FieldByName("StringMapStringSliceValue").Set(v.Addr())
 			return s, nil
+		default:
+			return nil, fmt.Errorf("unknown map value type for setting %s", vTypeStored)
 		}
-		return nil, fmt.Errorf("unknown map value type for setting %s", vTypeStored)
 	case reflect.Uint:
 		s := &UintSetting{
 			BaseSetting: &BaseSetting{
