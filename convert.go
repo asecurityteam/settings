@@ -42,7 +42,7 @@ func Convert(v interface{}) (Group, error) {
 	// Every struct may, optionally, provide the namer interface in order
 	// to control the name of the group. If a struct does not expose the
 	// name interface then we use the name of the struct with the package
-	// name removed as an identfier. The same is true for description except
+	// name removed as an identifier. The same is true for description except
 	// that we do not add a default description.
 	nameTmp := strings.Split(vv.Type().Name(), ".")
 	name := nameTmp[len(nameTmp)-1]
@@ -65,7 +65,7 @@ func Convert(v interface{}) (Group, error) {
 	for x := 0; x < vv.NumField(); x = x + 1 {
 		// The Value and Type versions of Field() return different types that
 		// contain different information. The Type.Field() generates a TypeField
-		// that contains the details needed to determin the field name and whether
+		// that contains the details needed to determine the field name and whether
 		// it is embedded or not. The Value.Field() returns a Value that can be used
 		// to manipulate the field.
 		stack = append(stack, fieldAndValue{Value: vv.Field(x), Field: vv.Type().Field(x)})
