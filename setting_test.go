@@ -8,10 +8,13 @@ import (
 
 func getParsedYamlTestFixture(t *testing.T) map[string]interface{} {
 	yamlTestString := `
-animals:
-  - cats
-  - dogs
-  - fish
+fruits:
+  - apple
+  - orange
+  - mango
+vegetables:
+  - corn
+  - squash
 `
 	testS, err := NewYAMLSource([]byte(yamlTestString))
 	if err != nil {
@@ -171,15 +174,15 @@ func TestSetting(t *testing.T) {
 		{
 			name:     "StringMapStringSlice from JSON",
 			setting:  NewStringMapStringSliceSetting("StringMapStringSlice", "", nil),
-			good:     `{"animals": ["cats", "dogs", "fish"]}`,
-			expected: map[string][]string{"animals": {"cats", "dogs", "fish"}},
+			good:     `{"dogs": ["german shepard", "golden retriever"], "birds": ["eagle", "pigeon"]}`,
+			expected: map[string][]string{"dogs": {"german shepard", "golden retriever"}, "birds": {"eagle", "pigeon"}},
 			bad:      `{"animal": "dog"}`,
 		},
 		{
 			name:     "StringMapStringSlice from YAML",
 			setting:  NewStringMapStringSliceSetting("StringMapStringSlice", "", nil),
 			good:     getParsedYamlTestFixture(t),
-			expected: map[string][]string{"animals": {"cats", "dogs", "fish"}},
+			expected: map[string][]string{"fruits": {"apple", "orange", "mango"}, "vegetables": {"corn", "squash"}},
 			bad:      `- animal - dog`,
 		},
 	}
