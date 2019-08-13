@@ -194,7 +194,7 @@ func settingFromValue(name string, description string, v reflect.Value) (Setting
 		return s, nil
 	case reflect.Map:
 		vTypeStored := v.Type()
-		switch vTypeStored.String(){
+		switch vTypeStored.String() {
 		case "map[string][]string":
 			s := &StringMapStringSliceSetting{
 				BaseSetting: &BaseSetting{
