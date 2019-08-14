@@ -258,15 +258,104 @@ conjunction with elements from the Hierarchy API, are flexible enough to build
 anything you need.
 
 ## Special Type Parsing and Casting
-The `cast` library we use falls back to JSON for complex types expressed as string values.
-**TODO** Simple examples for the following types to show how they are parsed
-- map[string][]string
-- []string
-- time.Time
-- time.Duration
 
-**NOTE:** Trying to set a `EnvSource` setting of type `map[string][]string` will likely fail,
-but setting an environment variable to this type of value is rare so this shouldn't be a common problem.
+We use the `cast` library for casting values read in from configurations into their go types. The `cast` library 
+falls back to JSON for complex types expressed as string values. Here are some examples of how we parse different types:
+
+**[]string:**
+For a given configuration
+```go
+type Config struct {
+    TheSlice *[]string
+}
+```
+The values in the following examples will all be parsed as a string slice.
+```yaml
+theslice:
+  - "a"
+  - "b"
+  - "c"
+```
+
+```shell
+SOME_ENV_VAR="a b c"`
+```
+
+```yaml
+myvar:
+    theslice: "${SOME_ENV_VAR}"
+```
+
+```json
+{"myvar":  {"theslice":  ["a", "b", "c"]}}
+{"myvar2":  {"theslice":  "${SOME_ENV_VAR}"}}
+```
+
+**map[string][]string:**
+For a given configuration
+```go
+type Config struct {
+    mapStringSlices *[]string
+}
+```
+The values in the following examples will all be parsed as a string map string slices where the key `letters` and
+`symbols` gets included as the string map key.
+```yaml
+myvar:
+    letters:
+      - "a"
+      - "b"
+      - "c"
+    symbols:
+      - "@"
+      - "!"
+```
+
+```json
+{"myvar":  {"letters":  ["a", "b", "c"]}, "symbols":  ["@", "!"]}
+```
+
+**time.Time:**
+For a given configuration
+```go
+type Config struct {
+    TheTime *time.Time
+}
+```
+
+The following examples will be parsed using the RFC3339 format by `time.Parse(time.RFC3339, value)`:
+
+```yaml
+"thetime": "2012-11-01T22:08:41+00:00"
+```
+
+```json
+{"thetime": "2012-11-01T22:08:41+00:00"}
+```
+
+```shell
+TIME_ENV_VAR="2012-11-01T22:08:41+00:00"`
+```
+
+**time.Duration:**
+For a given configuration
+```go
+type Config struct {
+	TimeLength *time.Duration
+}
+```
+The following examples will be parsed using `time.Duration`
+```yaml
+"timeLength": "4h"
+```
+
+```json
+{"timeLength": "4h"}
+```
+
+```shell
+JOB_LENGTH_ENV_VAR="4h"
+```
 
 <a id="markdown-contributing" name="contributing"></a>
 ## Contributing
