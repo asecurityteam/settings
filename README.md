@@ -287,8 +287,8 @@ myvar:
 ```
 
 ```json
-{"myvar":  {"theslice":  ["a", "b", "c"]}}
-{"myvar2":  {"theslice":  "${SOME_ENV_VAR}"}}
+{"theslice":  ["a", "b", "c"]}
+{"theslice":  "${SOME_ENV_VAR}"}
 ```
 
 **map[string][]string:**
