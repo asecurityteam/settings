@@ -282,8 +282,7 @@ SOME_ENV_VAR="a b c"`
 ```
 
 ```yaml
-myvar:
-    theslice: "${SOME_ENV_VAR}"
+theslice: "${SOME_ENV_VAR}"
 ```
 
 ```json
