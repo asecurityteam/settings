@@ -354,7 +354,7 @@ The following examples will be parsed using `time.Duration`
 ```
 
 ```shell
-JOB_LENGTH_ENV_VAR="4h"
+TIME_LENGTH_ENV_VAR="4h"
 ```
 
 <a id="markdown-contributing" name="contributing"></a>
