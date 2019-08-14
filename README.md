@@ -294,7 +294,7 @@ theslice: "${SOME_ENV_VAR}"
 For a given configuration
 ```go
 type Config struct {
-    mapStringSlices *[]string
+    mapStringSlices *map[string][]string
 }
 ```
 The values in the following examples will all be parsed as a string map string slices where the key `letters` and
