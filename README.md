@@ -262,45 +262,66 @@ anything you need.
 We use the `cast` library for casting values read in from configurations into their go types. The `cast` library 
 falls back to JSON for complex types expressed as string values. Here are some examples of how we parse different types:
 
-**[]string:**
+**[]string**
+
 For a given configuration
 ```go
 type Config struct {
-    TheSlice *[]string
+    TheSlice []string
 }
 ```
 The values in the following examples will all be parsed as a string slice.
+
+*yaml*
 ```yaml
-theslice:
-  - "a"
-  - "b"
-  - "c"
+config:
+  theslice:
+    - "a"
+    - "b"
+    - "c"
 ```
 
-```shell
-SOME_ENV_VAR="a b c"`
-```
-
-```yaml
-theslice: "${SOME_ENV_VAR}"
-```
-
+*JSON*
 ```json
-{"theslice":  ["a", "b", "c"]}
-{"theslice":  "${SOME_ENV_VAR}"}
+{"config": {"theslice":  ["a", "b", "c"]}}
 ```
 
-**map[string][]string:**
+You can also set an environment variable and reference them in a YAML or JSON file like below. Note that this
+environment variable value will be parsed as a slice where each letter will be a value since it gets split by any
+space in the string.
+
+*Environment Variable*
+```shell
+CONFIG_THESLICE="a b c"`
+```
+
+*yaml*
+```yaml
+config:
+  theslice: "${CONFIG_THESLICE}"
+```
+
+*JSON*
+```json
+{"config": {"theslice":  "${CONFIG_THESLICE}"}}
+```
+
+**map[string][]string**
+
 For a given configuration
 ```go
 type Config struct {
-    mapStringSlices *map[string][]string
+    allowedStrings map[string][]string
 }
 ```
+
 The values in the following examples will all be parsed as a string map string slices where the key `letters` and
-`symbols` gets included as the string map key.
+`symbols` gets included as the string map key and their values are a string slice.
+
+*yaml*
 ```yaml
-myvar:
+config:
+  allowedStrings:
     letters:
       - "a"
       - "b"
@@ -310,50 +331,69 @@ myvar:
       - "!"
 ```
 
+*JSON*
 ```json
-{"myvar":  {"letters":  ["a", "b", "c"]}, "symbols":  ["@", "!"]}
-```
-
-**time.Time:**
-For a given configuration
-```go
-type Config struct {
-    TheTime *time.Time
+{
+	"config": {
+		"allowedStrings": {
+			"letters": ["a", "b", "c"],
+			"symbols": ["@", "!"]
+		}
+	}
 }
 ```
 
-The following examples will be parsed using the RFC3339 format by `time.Parse(time.RFC3339, value)`:
+**time.Time**
 
+For a given configuration
+```go
+type Config struct {
+    TheTime time.Time
+}
+```
+
+The following examples will be parsed using the RFC3339 format by `time.Parse(time.RFC3339, value)`
+
+*yaml*
 ```yaml
-"thetime": "2012-11-01T22:08:41+00:00"
+"config":
+  "thetime": "2012-11-01T22:08:41+00:00"
 ```
 
+*JSON*
 ```json
-{"thetime": "2012-11-01T22:08:41+00:00"}
+{"config": {"thetime": "2012-11-01T22:08:41+00:00"}}
 ```
 
+*Environment Variable*
 ```shell
-TIME_ENV_VAR="2012-11-01T22:08:41+00:00"`
+CONFIG_THETIME="2012-11-01T22:08:41+00:00"`
 ```
 
-**time.Duration:**
+**time.Duration**
+
 For a given configuration
 ```go
 type Config struct {
-	TimeLength *time.Duration
+	TimeLength time.Duration
 }
 ```
+
 The following examples will be parsed using `time.Duration`
+*yaml*
 ```yaml
-"timeLength": "4h"
+"config":
+  "timeLength": "4h"
 ```
 
+*JSON*
 ```json
-{"timeLength": "4h"}
+{"config": {"timeLength": "4h"}}
 ```
 
+*Environment Variable*
 ```shell
-TIME_LENGTH_ENV_VAR="4h"
+CONFIG_TIMELENGTH="4h"
 ```
 
 <a id="markdown-contributing" name="contributing"></a>
