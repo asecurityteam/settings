@@ -252,7 +252,18 @@ func TestConvert(t *testing.T) {
 			},
 			wantErr: false,
 		},
-
+		{
+			name: "struct/map[string][]string",
+			v: &(struct{ V map[string][]string }{
+				V: map[string][]string{"letters": {"a", "b"}, "characters": {"!", "@"}}}),
+			want: &SettingGroup{
+				SettingValues: []Setting{
+					NewStringMapStringSliceSetting("V", "",
+						map[string][]string{"letters": {"a", "b"}, "characters": {"!", "@"}}),
+				},
+			},
+			wantErr: false,
+		},
 		{
 			name: "struct/named",
 			v:    &named{},

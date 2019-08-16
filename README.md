@@ -257,6 +257,145 @@ replacing the type converters with something else. These elements, in possible
 conjunction with elements from the Hierarchy API, are flexible enough to build
 anything you need.
 
+## Special Type Parsing and Casting
+
+We use the `cast` library for casting values read in from configurations into their go types. The `cast` library 
+falls back to JSON for complex types expressed as string values. Here are some examples of how we parse different types:
+
+**[]string**
+
+For a given configuration
+```go
+type Config struct {
+    TheSlice []string
+}
+```
+The values in the following examples will all be parsed as a string slice.
+
+*yaml*
+```yaml
+config:
+  theslice:
+    - "a"
+    - "b"
+    - "c"
+```
+
+*JSON*
+```json
+{"config": {"theslice":  ["a", "b", "c"]}}
+```
+
+You can also set an environment variable and reference them in a YAML or JSON file like below. Note that this
+environment variable value will be parsed as a slice where each letter will be a value since it gets split by any
+space in the string.
+
+*Environment Variable*
+```shell
+CONFIG_THESLICE="a b c"`
+```
+
+*yaml*
+```yaml
+config:
+  theslice: "${CONFIG_THESLICE}"
+```
+
+*JSON*
+```json
+{"config": {"theslice":  "${CONFIG_THESLICE}"}}
+```
+
+**map[string][]string**
+
+For a given configuration
+```go
+type Config struct {
+    allowedStrings map[string][]string
+}
+```
+
+The values in the following examples will all be parsed as a string map string slices where the key `letters` and
+`symbols` gets included as the string map key and their values are a string slice.
+
+*yaml*
+```yaml
+config:
+  allowedStrings:
+    letters:
+      - "a"
+      - "b"
+      - "c"
+    symbols:
+      - "@"
+      - "!"
+```
+
+*JSON*
+```json
+{
+	"config": {
+		"allowedStrings": {
+			"letters": ["a", "b", "c"],
+			"symbols": ["@", "!"]
+		}
+	}
+}
+```
+
+**time.Time**
+
+For a given configuration
+```go
+type Config struct {
+    TheTime time.Time
+}
+```
+
+The following examples will be parsed using the RFC3339 format by `time.Parse(time.RFC3339, value)`
+
+*yaml*
+```yaml
+"config":
+  "thetime": "2012-11-01T22:08:41+00:00"
+```
+
+*JSON*
+```json
+{"config": {"thetime": "2012-11-01T22:08:41+00:00"}}
+```
+
+*Environment Variable*
+```shell
+CONFIG_THETIME="2012-11-01T22:08:41+00:00"`
+```
+
+**time.Duration**
+
+For a given configuration
+```go
+type Config struct {
+	TimeLength time.Duration
+}
+```
+
+The following examples will be parsed using `time.Duration`
+*yaml*
+```yaml
+"config":
+  "timeLength": "4h"
+```
+
+*JSON*
+```json
+{"config": {"timeLength": "4h"}}
+```
+
+*Environment Variable*
+```shell
+CONFIG_TIMELENGTH="4h"
+```
+
 <a id="markdown-contributing" name="contributing"></a>
 ## Contributing
 

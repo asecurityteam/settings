@@ -6,6 +6,23 @@ import (
 	"time"
 )
 
+func getParsedYamlTestFixture(t *testing.T) map[string]interface{} {
+	yamlTestString := `
+fruits:
+  - apple
+  - orange
+  - mango
+vegetables:
+  - corn
+  - squash
+`
+	testS, err := NewYAMLSource([]byte(yamlTestString))
+	if err != nil {
+		t.Errorf("failed to parse YAML test fixture due to %s", err)
+	}
+	return testS.Map
+}
+
 func TestSetting(t *testing.T) {
 	tests := []struct {
 		name     string
@@ -153,6 +170,20 @@ func TestSetting(t *testing.T) {
 			good:     "one two three",
 			expected: []string{"one", "two", "three"},
 			bad:      make(map[string]interface{}),
+		},
+		{
+			name:     "StringMapStringSlice from JSON",
+			setting:  NewStringMapStringSliceSetting("StringMapStringSlice", "", nil),
+			good:     `{"dogs": ["german shepard", "golden retriever"], "birds": ["eagle", "pigeon"]}`,
+			expected: map[string][]string{"dogs": {"german shepard", "golden retriever"}, "birds": {"eagle", "pigeon"}},
+			bad:      `{"animal": "dog"}`,
+		},
+		{
+			name:     "StringMapStringSlice from YAML",
+			setting:  NewStringMapStringSliceSetting("StringMapStringSlice", "", nil),
+			good:     getParsedYamlTestFixture(t),
+			expected: map[string][]string{"fruits": {"apple", "orange", "mango"}, "vegetables": {"corn", "squash"}},
+			bad:      `- animal - dog`,
 		},
 	}
 	for _, tt := range tests {
