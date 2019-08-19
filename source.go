@@ -155,7 +155,7 @@ func NewFileSource(path string) (*MapSource, error) {
 }
 
 // NewEnvSource uses the given environment to generate a configuration
-// source. The "_" character is used as a delimeter and each one will
+// source. The "_" character is used as a delimiter and each one will
 // result in a subtree.
 func NewEnvSource(env []string) (*MapSource, error) {
 	m := make(map[string]interface{})

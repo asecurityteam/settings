@@ -341,6 +341,12 @@ config:
 		}
 	}
 }
+
+```
+
+*Environment Variable*
+```shell
+CONFIG_ALLOWEDSTRINGS="{"letters": ["a", "b", "c"], "symbols": ["@", "!"]}"
 ```
 
 **time.Time**
