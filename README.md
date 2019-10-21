@@ -1,4 +1,3 @@
-<a id="markdown-settings---typed-configuration-toolkit-for-go" name="settings---typed-configuration-toolkit-for-go"></a>
 # Settings - Typed Configuration Toolkit For Go
 [![GoDoc](https://godoc.org/github.com/asecurityteam/settings?status.svg)](https://godoc.org/github.com/asecurityteam/settings)
 [![Build Status](https://travis-ci.com/asecurityteam/settings.png?branch=master)](https://travis-ci.com/asecurityteam/settings)
@@ -6,21 +5,8 @@
 
 *Status: Incubation*
 
-<!-- TOC -->
+<!-- TOC -->autoauto- [Settings - Typed Configuration Toolkit For Go](#settings---typed-configuration-toolkit-for-go)auto    - [Overview](#overview)auto    - [Data Sources](#data-sources)auto    - [Component API](#component-api)auto    - [Hierarchy API](#hierarchy-api)auto    - [Adapter API](#adapter-api)auto    - [Special Type Parsing and Casting](#special-type-parsing-and-casting)auto    - [Contributing](#contributing)auto        - [License](#license)auto        - [Contributing Agreement](#contributing-agreement)autoauto<!-- /TOC -->
 
-- [Settings - Typed Configuration Toolkit For Go](#settings---typed-configuration-toolkit-for-go)
-    - [Overview](#overview)
-    - [Data Sources](#data-sources)
-    - [Component API](#component-api)
-    - [Hierarchy API](#hierarchy-api)
-    - [Adapter API](#adapter-api)
-    - [Contributing](#contributing)
-        - [License](#license)
-        - [Contributing Agreement](#contributing-agreement)
-
-<!-- /TOC -->
-
-<a id="markdown-overview" name="overview"></a>
 ## Overview
 
 There aren't very many well tested and maintained libraries in the ecosystem for
@@ -63,7 +49,6 @@ attempts to overcome those small deficits by offering:
 -   A low level API for interfacing between statically typed options and weakly typed
     configuration sources.
 
-<a id="markdown-data-sources" name="data-sources"></a>
 ## Data Sources
 
 All forms of our API interact in some with a source of configuration data. The
@@ -107,7 +92,6 @@ source is responsible for safely converting the result into a useful value.
 
 We recommend using one of the API layers we provide to do this for you.
 
-<a id="markdown-component-api" name="component-api"></a>
 ## Component API
 
 With one of our goals being the support of plugin based systems, we've built
@@ -217,7 +201,6 @@ toptree:
 
 The descriptions are used to annotate example configurations and help output.
 
-<a id="markdown-hierarchy-api" name="hierarchy-api"></a>
 ## Hierarchy API
 
 If the component API is too restrictive for your use case then the Hierarchy API
@@ -244,7 +227,6 @@ After loading is complete, each `Setting` value will contain either the given de
 for a the value found in the `Source`. This is the same API we used to create the
 Component API.
 
-<a id="markdown-adapter-api" name="adapter-api"></a>
 ## Adapter API
 
 If none of the higher API layers provide what you need then we also offer a lower
@@ -346,6 +328,38 @@ config:
 }
 ```
 
+**map[string]string**
+
+For a given configuration
+```go
+type Config struct {
+    headers map[string]string
+}
+```
+
+The values in the following examples will all be parsed as a string map of string values where the key and
+values get included as the string map key to string values.
+
+*yaml*
+```yaml
+config:
+  headers:
+    x-header-1: "a"
+    x-header-2: "b"
+```
+
+*JSON*
+```json
+{
+	"config": {
+		"headers": {
+			"x-header-1": "a",
+			"x-header-2": "b"
+		}
+	}
+}
+```
+
 **time.Time**
 
 For a given configuration
@@ -399,15 +413,12 @@ The following examples will be parsed using `time.Duration`
 CONFIG_TIMELENGTH="4h"
 ```
 
-<a id="markdown-contributing" name="contributing"></a>
 ## Contributing
 
-<a id="markdown-license" name="license"></a>
 ### License
 
 This project is licensed under Apache 2.0. See LICENSE.txt for details.
 
-<a id="markdown-contributing-agreement" name="contributing-agreement"></a>
 ### Contributing Agreement
 
 Atlassian requires signing a contributor's agreement before we can accept a patch. If

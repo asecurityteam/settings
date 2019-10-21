@@ -695,3 +695,32 @@ func NewStringMapStringSliceSetting(name string, description string, fallback ma
 		StringMapStringSliceValue: &fallback,
 	}
 }
+
+// StringMapStringSetting manages an instance of map[string]string.
+type StringMapStringSetting struct {
+	*BaseSetting
+	StringMapStringValue *map[string]string
+}
+
+// Value returns the underlying map[string][]string.
+func (m *StringMapStringSetting) Value() interface{} {
+	return *m.StringMapStringValue
+}
+
+// SetValue changes the underlying map[string][]string.
+func (m *StringMapStringSetting) SetValue(v interface{}) error {
+	var err error
+	*m.StringMapStringValue, err = cast.ToStringMapStringE(v)
+	return err
+}
+
+// NewStringMapStringSetting creates a StringMapStringSetting with the given default value.
+func NewStringMapStringSetting(name string, description string, fallback map[string]string) *StringMapStringSetting {
+	return &StringMapStringSetting{
+		BaseSetting: &BaseSetting{
+			NameValue:        name,
+			DescriptionValue: description,
+		},
+		StringMapStringValue: &fallback,
+	}
+}
