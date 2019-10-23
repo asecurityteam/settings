@@ -265,6 +265,18 @@ func TestConvert(t *testing.T) {
 			wantErr: false,
 		},
 		{
+			name: "struct/map[string]string",
+			v: &(struct{ V map[string]string }{
+				V: map[string]string{"letter": "a", "character": "!"}}),
+			want: &SettingGroup{
+				SettingValues: []Setting{
+					NewStringMapStringSetting("V", "",
+						map[string]string{"letter": "a", "character": "!"}),
+				},
+			},
+			wantErr: false,
+		},
+		{
 			name: "struct/named",
 			v:    &named{},
 			want: &SettingGroup{

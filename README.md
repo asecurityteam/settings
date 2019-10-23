@@ -262,7 +262,7 @@ anything you need.
 
 ## Special Type Parsing and Casting
 
-We use the `cast` library for casting values read in from configurations into their go types. The `cast` library 
+We use the `cast` library for casting values read in from configurations into their go types. The `cast` library
 falls back to JSON for complex types expressed as string values. Here are some examples of how we parse different types:
 
 **[]string**
@@ -341,6 +341,38 @@ config:
 		"allowedStrings": {
 			"letters": ["a", "b", "c"],
 			"symbols": ["@", "!"]
+		}
+	}
+}
+```
+
+**map[string]string**
+
+For a given configuration
+```go
+type Config struct {
+    foods map[string]string
+}
+```
+
+The values in the following examples will all be parsed as a string map of string values where the key and
+values get included as the string map key to string values.
+
+*yaml*
+```yaml
+config:
+  foods:
+    apple: "fruit"
+    broccoli: "vegetable"
+```
+
+*JSON*
+```json
+{
+	"config": {
+		"foods": {
+			"apple": "fruit",
+			"broccoli": "vegetable"
 		}
 	}
 }
