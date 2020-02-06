@@ -82,7 +82,7 @@ composing data sources:
 
 ```golang
 jsonSource, _ := settings.NewFileSource("config.json")
-yamlSource, _ := settings.NewFileSOurce("config.yaml")
+yamlSource, _ := settings.NewFileSource("config.yaml")
 envSource := settings.NewEnvSource(os.Environ())
 // Apply a static prefix to all env lookups. For example,
 // here we add a APP_ to all names.
