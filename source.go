@@ -137,7 +137,12 @@ func NewFileSource(path string) (*MapSource, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer f.Close()
+	// changed how we handled a deferred file closure due to go lint security check https://github.com/securego/gosec/issues/512#issuecomment-675286833
+	defer func() {
+		if cerr := f.Close(); cerr != nil {
+			fmt.Printf("Error closing file: %s\n", cerr)
+		}
+	}()
 	b, err := ioutil.ReadAll(f)
 	if err != nil {
 		return nil, err
