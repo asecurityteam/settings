@@ -8,7 +8,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/go-yaml/yaml"
+	"gopkg.in/yaml.v2"
 )
 
 // Source is the main entry point for fetching configuration
