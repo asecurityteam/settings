@@ -8,7 +8,7 @@ import (
 	"os"
 	"strings"
 
-	"gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v3"
 )
 
 // Source is the main entry point for fetching configuration
