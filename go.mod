@@ -4,7 +4,7 @@ go 1.17
 
 require (
 	github.com/andreyvit/diff v0.0.0-20170406064948-c7f18ee00883
-	github.com/spf13/cast v1.3.1
+	github.com/spf13/cast v1.5.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 
