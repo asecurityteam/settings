@@ -12,6 +12,14 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+const (
+	infiniteRecursionDepthLimit = 10
+)
+
+// envPattern is used for matching strings the lib user intends to have
+// substituted by recursing through the sources to find the "final" value
+var envPattern = regexp.MustCompile(`\${[^}]+}`)
+
 // Source is the main entry point for fetching configuration
 // values. The boolean value must be false if the source is
 // unable to find an entry for the given path. If found, the
@@ -235,7 +243,18 @@ type MultiSource []Source
 
 // Get a value from the ordered set of Sources.
 func (ms MultiSource) Get(ctx context.Context, path ...string) (interface{}, bool) {
-	var p, _ = regexp.Compile(envPattern)
+	v, found := ms.getRecursive(ctx, 0, path...)
+	if vString, ok := v.(string); ok && envPattern.Match([]byte(vString)) {
+		// the value is unexpanded, even after possible recursive search
+		return nil, false
+	}
+	return v, found
+}
+
+func (ms MultiSource) getRecursive(ctx context.Context, recursionDepth int, path ...string) (interface{}, bool) {
+	if recursionDepth > infiniteRecursionDepthLimit {
+		return nil, false
+	}
 	var v interface{}
 	var found bool
 	for _, ss := range ms {
@@ -245,21 +264,19 @@ func (ms MultiSource) Get(ctx context.Context, path ...string) (interface{}, boo
 		}
 	}
 
-	if s, ok := v.(string); ok && p.Match([]byte(s)) {
+	if s, ok := v.(string); ok && envPattern.Match([]byte(s)) {
 		key := ms.unwrap([]byte(s))
-		return ms.Get(ctx, strings.Split(string(key), "_")...)
+		subbed, subFound := ms.getRecursive(ctx, recursionDepth+1, strings.Split(string(key), "_")...)
+		if subFound { // if no subtitute found, return the wrapped string as-is
+			return subbed, subFound
+		}
 	}
 
 	return v, found
 }
 
-const (
-	envPattern = `\${[^}]+}`
-)
-
 func (ms MultiSource) unwrap(source []byte) []byte {
-	var p, _ = regexp.Compile(envPattern)
-	return p.ReplaceAllFunc(source, func(match []byte) []byte {
+	return envPattern.ReplaceAllFunc(source, func(match []byte) []byte {
 		name := match[2 : len(match)-1] // strip ${}
 		return []byte(string(name))
 	})

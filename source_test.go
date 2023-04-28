@@ -436,6 +436,18 @@ func TestMultiSourceVariableExpansion(t *testing.T) {
 	}
 }
 
+func TestMultiSourceVariableExpansionNotFound(t *testing.T) {
+	s := MultiSource{
+		NewMapSource(map[string]interface{}{
+			"b": "${a}",
+		}),
+	}
+	_, found := s.Get(context.Background(), "b")
+	if found {
+		t.Error("should not have found b with multi source and no key mapping substitution")
+	}
+}
+
 func TestMultiSourceVariableExpansionInverted(t *testing.T) {
 	s := MultiSource{
 		NewMapSource(map[string]interface{}{
@@ -451,6 +463,22 @@ func TestMultiSourceVariableExpansionInverted(t *testing.T) {
 	}
 	if s, ok := v.(string); !ok || s != "aa" {
 		t.Error("b does not equal aa")
+	}
+}
+
+func TestMultiSourceVariableExpansionRecursionDepthLimit(t *testing.T) {
+	// rather than erroring out when we detect possible infinite
+	// recursion, indicate that no "final" value could be found
+	s := MultiSource{
+		NewMapSource(map[string]interface{}{
+			"a": "${b}",
+			"b": "${c}",
+			"c": "${a}",
+		}),
+	}
+	_, found := s.Get(context.Background(), "a")
+	if found {
+		t.Error("should not have found a with multi source and no key mapping substitution")
 	}
 }
 
