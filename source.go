@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"regexp"
 	"strings"
 
 	"gopkg.in/yaml.v3"
@@ -25,7 +26,8 @@ type Source interface {
 // sources which would be JSON, YAML, and ENV.
 //
 // Note: All keys should lower case (if applicable for the character set)
-// 		 as lower case will also be applied to all lookup paths.
+//
+//	as lower case will also be applied to all lookup paths.
 type MapSource struct {
 	Map map[string]interface{}
 }
@@ -211,7 +213,7 @@ func NewEnvSource(env []string) (*MapSource, error) {
 	return NewMapSource(m), nil
 }
 
-// PrefixSource is a wrapper for other Source implementaions that adds
+// PrefixSource is a wrapper for other Source implementations that adds
 // a path element to the front of every lookup.
 type PrefixSource struct {
 	Source Source
@@ -232,12 +234,33 @@ func (s *PrefixSource) Get(ctx context.Context, path ...string) (interface{}, bo
 type MultiSource []Source
 
 // Get a value from the ordered set of Sources.
-func (s MultiSource) Get(ctx context.Context, path ...string) (interface{}, bool) {
-	for _, ss := range s {
-		v, found := ss.Get(ctx, path...)
+func (ms MultiSource) Get(ctx context.Context, path ...string) (interface{}, bool) {
+	var p, _ = regexp.Compile(envPattern)
+	var v interface{}
+	var found bool
+	for _, ss := range ms {
+		v, found = ss.Get(ctx, path...)
 		if found {
-			return v, found
+			break
 		}
 	}
-	return nil, false
+
+	if s, ok := v.(string); ok && p.Match([]byte(s)) {
+		key := ms.unwrap([]byte(s))
+		return ms.Get(ctx, strings.Split(string(key), "_")...)
+	}
+
+	return v, found
+}
+
+const (
+	envPattern = `\${[^}]+}`
+)
+
+func (ms MultiSource) unwrap(source []byte) []byte {
+	var p, _ = regexp.Compile(envPattern)
+	return p.ReplaceAllFunc(source, func(match []byte) []byte {
+		name := match[2 : len(match)-1] // strip ${}
+		return []byte(string(name))
+	})
 }
