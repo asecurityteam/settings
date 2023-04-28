@@ -79,6 +79,15 @@ func NewMapSource(m map[string]interface{}) *MapSource {
 // Get traverses a configuration map until it finds the requested element
 // or reaches a dead end.
 func (s *MapSource) Get(_ context.Context, path ...string) (interface{}, bool) {
+	return s.getRecursive(nil, nil, 0, path...)
+}
+
+// Get traverses a configuration map until it finds the requested element
+// or reaches a dead end.
+func (s *MapSource) getRecursive(_ context.Context, valueAtTopOfRecursionStack interface{}, recursionDepth int, path ...string) (interface{}, bool) {
+	if recursionDepth > infiniteRecursionDepthLimit {
+		return nil, false
+	}
 	location := s.Map
 	for x := 0; x < len(path)-1; x = x + 1 {
 		pth := strings.ToLower(path[x])
@@ -91,6 +100,25 @@ func (s *MapSource) Get(_ context.Context, path ...string) (interface{}, bool) {
 		}
 	}
 	v, ok := location[strings.ToLower(path[len(path)-1])]
+	if !ok {
+		return valueAtTopOfRecursionStack, valueAtTopOfRecursionStack != nil
+	}
+
+	if vString, okString := v.(string); okString && ok && envPattern.Match([]byte(vString)) {
+		// value is a string wrapped in "${}"; turn the value into a path and keep searching,
+		// but keep the value at the top of the recursion stack in case we don't find anything
+		// and need to return it as-is
+		if valueAtTopOfRecursionStack == nil {
+			valueAtTopOfRecursionStack = vString
+		}
+		key := unwrap([]byte(vString))
+		subValue, subFound := s.getRecursive(nil, valueAtTopOfRecursionStack, recursionDepth+1, strings.Split(string(key), "_")...)
+		if !subFound {
+			return valueAtTopOfRecursionStack, true
+		}
+		return subValue, subFound
+	}
+
 	return v, ok
 }
 
@@ -243,15 +271,10 @@ type MultiSource []Source
 
 // Get a value from the ordered set of Sources.
 func (ms MultiSource) Get(ctx context.Context, path ...string) (interface{}, bool) {
-	v, found := ms.getRecursive(ctx, 0, path...)
-	if vString, ok := v.(string); ok && envPattern.Match([]byte(vString)) {
-		// the value is unexpanded, even after possible recursive search
-		return nil, false
-	}
-	return v, found
+	return ms.getRecursive(ctx, nil, 0, path...)
 }
 
-func (ms MultiSource) getRecursive(ctx context.Context, recursionDepth int, path ...string) (interface{}, bool) {
+func (ms MultiSource) getRecursive(ctx context.Context, valueAtTopOfRecursionStack interface{}, recursionDepth int, path ...string) (interface{}, bool) {
 	if recursionDepth > infiniteRecursionDepthLimit {
 		return nil, false
 	}
@@ -264,18 +287,29 @@ func (ms MultiSource) getRecursive(ctx context.Context, recursionDepth int, path
 		}
 	}
 
-	if s, ok := v.(string); ok && envPattern.Match([]byte(s)) {
-		key := ms.unwrap([]byte(s))
-		subbed, subFound := ms.getRecursive(ctx, recursionDepth+1, strings.Split(string(key), "_")...)
-		if subFound { // if no subtitute found, return the wrapped string as-is
-			return subbed, subFound
+	if vString, ok := v.(string); ok && envPattern.Match([]byte(vString)) {
+		// value is a string wrapped in "${}"; turn the value into a path and keep searching,
+		// but keep the value at the top of the recursion stack in case we don't find anything
+		// and need to return it as-is
+		if valueAtTopOfRecursionStack == nil {
+			valueAtTopOfRecursionStack = vString
 		}
+		key := unwrap([]byte(vString))
+		subValue, subFound := ms.getRecursive(ctx, valueAtTopOfRecursionStack, recursionDepth+1, strings.Split(string(key), "_")...)
+		if !subFound {
+			return valueAtTopOfRecursionStack, true
+		}
+		return subValue, subFound
+	}
+
+	if !found {
+		return valueAtTopOfRecursionStack, valueAtTopOfRecursionStack != nil
 	}
 
 	return v, found
 }
 
-func (ms MultiSource) unwrap(source []byte) []byte {
+func unwrap(source []byte) []byte {
 	return envPattern.ReplaceAllFunc(source, func(match []byte) []byte {
 		name := match[2 : len(match)-1] // strip ${}
 		return []byte(string(name))

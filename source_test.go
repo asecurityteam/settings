@@ -300,6 +300,92 @@ c:
 			},
 			want1: true,
 		},
+		{
+			name: "maps with resolvable reference",
+			fields: fields{
+				Map: map[string]interface{}{
+					"b": map[string]interface{}{
+						"bb": "${c_Cc_cCc}",
+					},
+					"c": map[string]interface{}{
+						"cc": map[string]interface{}{
+							"ccc": "value",
+						},
+					},
+				},
+				JSON: `{"b": {"bb": "${c_Cc_cCc}"}, "c": {"cc": {"ccc": "value"}}}`,
+				ENV: []string{
+					"B_BB=${c_Cc_cCc}",
+					"C_CC_CCC=value",
+				},
+				YAML: `
+b:
+  bb: "${c_Cc_cCc}"
+c:
+  cc:
+    ccc: "value"
+`,
+			},
+			args:  args{path: []string{"b", "bb"}},
+			want:  "value",
+			want1: true,
+		},
+		{
+			name: "maps with unresolvable reference",
+			fields: fields{
+				Map: map[string]interface{}{
+					"b": map[string]interface{}{
+						"bb": "${c_Cc_cCc}",
+					},
+					"c": map[string]interface{}{
+						"cc": map[string]interface{}{},
+					},
+				},
+				JSON: `{"b": {"bb": "${c_Cc_cCc}"}, "c": {"cc": {}}}`,
+				ENV: []string{
+					"B_BB=${c_Cc_cCc}",
+				},
+				YAML: `
+b:
+  bb: "${c_Cc_cCc}"
+c:
+  cc: ""
+`,
+			},
+			args:  args{path: []string{"b", "bb"}},
+			want:  "${c_Cc_cCc}",
+			want1: true,
+		},
+		{
+			name: "infinite recursion protection",
+			fields: fields{
+				Map: map[string]interface{}{
+					"b": map[string]interface{}{
+						"bb": "${c_Cc_cCc}",
+					},
+					"c": map[string]interface{}{
+						"cc": map[string]interface{}{
+							"ccc": "${b_bb}",
+						},
+					},
+				},
+				JSON: `{"b": {"bb": "${c_Cc_cCc}"}, "c": {"cc": {"ccc": "${b_bb}"}}}`,
+				ENV: []string{
+					"B_BB=${c_Cc_cCc}",
+					"C_CC_CCC=${b_bb}",
+				},
+				YAML: `
+b:
+  bb: "${c_Cc_cCc}"
+c:
+  cc:
+    ccc: "${b_bb}"
+`,
+			},
+			args:  args{path: []string{"b", "bb"}},
+			want:  "${c_Cc_cCc}",
+			want1: true,
+		},
 	}
 	for _, tt := range tests {
 		tFn := func(s *MapSource) func(t *testing.T) {
@@ -442,9 +528,12 @@ func TestMultiSourceVariableExpansionNotFound(t *testing.T) {
 			"b": "${a}",
 		}),
 	}
-	_, found := s.Get(context.Background(), "b")
-	if found {
-		t.Error("should not have found b with multi source and no key mapping substitution")
+	v, found := s.Get(context.Background(), "b")
+	if !found {
+		t.Error("could not find b with multi source")
+	}
+	if s, ok := v.(string); !ok || s != "${a}" {
+		t.Error("b does not equal ${a}")
 	}
 }
 
@@ -468,7 +557,8 @@ func TestMultiSourceVariableExpansionInverted(t *testing.T) {
 
 func TestMultiSourceVariableExpansionRecursionDepthLimit(t *testing.T) {
 	// rather than erroring out when we detect possible infinite
-	// recursion, indicate that no "final" value could be found
+	// recursion, return the first found value as-is (the value at the
+	// "top" of the recursion stack)
 	s := MultiSource{
 		NewMapSource(map[string]interface{}{
 			"a": "${b}",
@@ -476,9 +566,12 @@ func TestMultiSourceVariableExpansionRecursionDepthLimit(t *testing.T) {
 			"c": "${a}",
 		}),
 	}
-	_, found := s.Get(context.Background(), "a")
-	if found {
-		t.Error("should not have found a with multi source and no key mapping substitution")
+	v, found := s.Get(context.Background(), "a")
+	if !found {
+		t.Error("could not find a with multi source")
+	}
+	if s, ok := v.(string); !ok || s != "${b}" {
+		t.Error("a does not equal ${b}")
 	}
 }
 
