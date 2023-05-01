@@ -79,12 +79,12 @@ func NewMapSource(m map[string]interface{}) *MapSource {
 // Get traverses a configuration map until it finds the requested element
 // or reaches a dead end.
 func (s *MapSource) Get(_ context.Context, path ...string) (interface{}, bool) {
-	return s.getRecursive(nil, nil, 0, path...)
+	return s.getRecursive(nil, 0, path...)
 }
 
 // Get traverses a configuration map until it finds the requested element
 // or reaches a dead end.
-func (s *MapSource) getRecursive(_ context.Context, valueAtTopOfRecursionStack interface{}, recursionDepth int, path ...string) (interface{}, bool) {
+func (s *MapSource) getRecursive(valueAtTopOfRecursionStack interface{}, recursionDepth int, path ...string) (interface{}, bool) {
 	if recursionDepth > infiniteRecursionDepthLimit {
 		return nil, false
 	}
@@ -112,7 +112,7 @@ func (s *MapSource) getRecursive(_ context.Context, valueAtTopOfRecursionStack i
 			valueAtTopOfRecursionStack = vString
 		}
 		key := unwrap([]byte(vString))
-		subValue, subFound := s.getRecursive(nil, valueAtTopOfRecursionStack, recursionDepth+1, strings.Split(string(key), "_")...)
+		subValue, subFound := s.getRecursive(valueAtTopOfRecursionStack, recursionDepth+1, strings.Split(string(key), "_")...)
 		if !subFound {
 			return valueAtTopOfRecursionStack, true
 		}
