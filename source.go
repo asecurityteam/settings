@@ -311,7 +311,6 @@ func (ms MultiSource) getRecursive(ctx context.Context, valueAtTopOfRecursionSta
 
 func unwrap(source []byte) []byte {
 	return envPattern.ReplaceAllFunc(source, func(match []byte) []byte {
-		name := match[2 : len(match)-1] // strip ${}
-		return []byte(string(name))
+		return match[2 : len(match)-1] // strip ${}
 	})
 }

@@ -98,8 +98,7 @@ finalSource := []settings.MultiSource{prefixedEnv, yamlSource, jsonSource}
 v, found := finalSource.Get(context.Background(), "setting")
 ```
 
-`MultiSource` supports variable substitution, so that you can effectively perform
-variable mapping.  For example, in the following, the final value of `B_BB` key will
+The built-in sources, including `MultiSource`, support variable substitution, so that you can effectively perform variable mapping.  For example, in the following, the final value of `B_BB` key will
 be `envValue`.
 
 *config.yaml* (be sure to wrap reference values in quotes so the yaml parser interprets it as a string)
@@ -117,6 +116,24 @@ A_AA="envValue"
 yamlSource, _ := settings.NewFileSource("config.yaml")
 envSource := settings.NewEnvSource(os.Environ())
 finalSource := []settings.MultiSource{yamlSource, envSource}
+```
+
+Recursion protection is such that recursing to a depth of ten will result in the value
+at the "top" of the recursion stack being returned.  For example, the following will
+return a literal unexpanded value `${b}` when getting key `a` due to infinite recursion
+protection.
+
+```yaml
+a: "${b}"
+b: "${c}"
+c: "${a}"
+```
+
+Similarly, the literal value is returned when no expansion is possible.  The following will
+return a literal unexpanded value `${b}` when getting key `a`:
+
+```yaml
+a: "${b}"
 ```
 
 Sources may be used as-is by passing them around to components that need to fetch
