@@ -77,13 +77,12 @@ func NewMapSource(m map[string]interface{}) *MapSource {
 }
 
 // Get traverses a configuration map until it finds the requested element
-// or reaches a dead end.
+// or reaches a dead end.  Variable expansion is supported when the value
+// is a string with ${} wrapped around a key.
 func (s *MapSource) Get(_ context.Context, path ...string) (interface{}, bool) {
 	return s.getRecursive(nil, 0, path...)
 }
 
-// Get traverses a configuration map until it finds the requested element
-// or reaches a dead end.
 func (s *MapSource) getRecursive(valueAtTopOfRecursionStack interface{}, recursionDepth int, path ...string) (interface{}, bool) {
 	if recursionDepth > infiniteRecursionDepthLimit {
 		return nil, false
@@ -269,7 +268,8 @@ func (s *PrefixSource) Get(ctx context.Context, path ...string) (interface{}, bo
 // value or will return false for found.
 type MultiSource []Source
 
-// Get a value from the ordered set of Sources.
+// Get a value from the ordered set of Sources.  Variable expansion is supported when the value
+// is a string with ${} wrapped around a key.
 func (ms MultiSource) Get(ctx context.Context, path ...string) (interface{}, bool) {
 	return ms.getRecursive(ctx, nil, 0, path...)
 }
