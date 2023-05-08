@@ -6,10 +6,19 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"regexp"
 	"strings"
 
 	"gopkg.in/yaml.v3"
 )
+
+const (
+	infiniteRecursionDepthLimit = 10
+)
+
+// envPattern is used for matching strings the lib user intends to have
+// substituted by recursing through the sources to find the "final" value
+var envPattern = regexp.MustCompile(`\${[^}]+}`)
 
 // Source is the main entry point for fetching configuration
 // values. The boolean value must be false if the source is
@@ -25,7 +34,8 @@ type Source interface {
 // sources which would be JSON, YAML, and ENV.
 //
 // Note: All keys should lower case (if applicable for the character set)
-// 		 as lower case will also be applied to all lookup paths.
+//
+//	as lower case will also be applied to all lookup paths.
 type MapSource struct {
 	Map map[string]interface{}
 }
@@ -67,8 +77,16 @@ func NewMapSource(m map[string]interface{}) *MapSource {
 }
 
 // Get traverses a configuration map until it finds the requested element
-// or reaches a dead end.
+// or reaches a dead end.  Variable expansion is supported when the value
+// is a string with ${} wrapped around a key.
 func (s *MapSource) Get(_ context.Context, path ...string) (interface{}, bool) {
+	return s.getRecursive(nil, 0, path...)
+}
+
+func (s *MapSource) getRecursive(valueAtTopOfRecursionStack interface{}, recursionDepth int, path ...string) (interface{}, bool) {
+	if recursionDepth > infiniteRecursionDepthLimit {
+		return nil, false
+	}
 	location := s.Map
 	for x := 0; x < len(path)-1; x = x + 1 {
 		pth := strings.ToLower(path[x])
@@ -81,6 +99,25 @@ func (s *MapSource) Get(_ context.Context, path ...string) (interface{}, bool) {
 		}
 	}
 	v, ok := location[strings.ToLower(path[len(path)-1])]
+	if !ok {
+		return valueAtTopOfRecursionStack, valueAtTopOfRecursionStack != nil
+	}
+
+	if vString, okString := v.(string); okString && ok && envPattern.Match([]byte(vString)) {
+		// value is a string wrapped in "${}"; turn the value into a path and keep searching,
+		// but keep the value at the top of the recursion stack in case we don't find anything
+		// and need to return it as-is
+		if valueAtTopOfRecursionStack == nil {
+			valueAtTopOfRecursionStack = vString
+		}
+		key := unwrap([]byte(vString))
+		subValue, subFound := s.getRecursive(valueAtTopOfRecursionStack, recursionDepth+1, strings.Split(string(key), "_")...)
+		if !subFound {
+			return valueAtTopOfRecursionStack, true
+		}
+		return subValue, subFound
+	}
+
 	return v, ok
 }
 
@@ -211,7 +248,7 @@ func NewEnvSource(env []string) (*MapSource, error) {
 	return NewMapSource(m), nil
 }
 
-// PrefixSource is a wrapper for other Source implementaions that adds
+// PrefixSource is a wrapper for other Source implementations that adds
 // a path element to the front of every lookup.
 type PrefixSource struct {
 	Source Source
@@ -231,13 +268,49 @@ func (s *PrefixSource) Get(ctx context.Context, path ...string) (interface{}, bo
 // value or will return false for found.
 type MultiSource []Source
 
-// Get a value from the ordered set of Sources.
-func (s MultiSource) Get(ctx context.Context, path ...string) (interface{}, bool) {
-	for _, ss := range s {
-		v, found := ss.Get(ctx, path...)
+// Get a value from the ordered set of Sources.  Variable expansion is supported when the value
+// is a string with ${} wrapped around a key.
+func (ms MultiSource) Get(ctx context.Context, path ...string) (interface{}, bool) {
+	return ms.getRecursive(ctx, nil, 0, path...)
+}
+
+func (ms MultiSource) getRecursive(ctx context.Context, valueAtTopOfRecursionStack interface{}, recursionDepth int, path ...string) (interface{}, bool) {
+	if recursionDepth > infiniteRecursionDepthLimit {
+		return nil, false
+	}
+	var v interface{}
+	var found bool
+	for _, ss := range ms {
+		v, found = ss.Get(ctx, path...)
 		if found {
-			return v, found
+			break
 		}
 	}
-	return nil, false
+
+	if vString, ok := v.(string); ok && envPattern.Match([]byte(vString)) {
+		// value is a string wrapped in "${}"; turn the value into a path and keep searching,
+		// but keep the value at the top of the recursion stack in case we don't find anything
+		// and need to return it as-is
+		if valueAtTopOfRecursionStack == nil {
+			valueAtTopOfRecursionStack = vString
+		}
+		key := unwrap([]byte(vString))
+		subValue, subFound := ms.getRecursive(ctx, valueAtTopOfRecursionStack, recursionDepth+1, strings.Split(string(key), "_")...)
+		if !subFound {
+			return valueAtTopOfRecursionStack, true
+		}
+		return subValue, subFound
+	}
+
+	if !found {
+		return valueAtTopOfRecursionStack, valueAtTopOfRecursionStack != nil
+	}
+
+	return v, found
+}
+
+func unwrap(source []byte) []byte {
+	return envPattern.ReplaceAllFunc(source, func(match []byte) []byte {
+		return match[2 : len(match)-1] // strip ${}
+	})
 }
