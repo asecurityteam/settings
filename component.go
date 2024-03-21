@@ -24,21 +24,21 @@ import (
 //
 // For example, the most minimal implementation of the contract would look like:
 //
-//  type Config struct {}
-//  type Result struct {}
-//  type Component struct {}
-//  func (*Component) Settings() *Config { return &Config{} }
-//  func (*Component) New(_ context.Context, c *Config) (*Result, error) {
-//      return &Result{}, nil
-//  }
+//	type Config struct {}
+//	type Result struct {}
+//	type Component struct {}
+//	func (*Component) Settings() *Config { return &Config{} }
+//	func (*Component) New(_ context.Context, c *Config) (*Result, error) {
+//	    return &Result{}, nil
+//	}
 //
 // From here, any number of settings and sub-trees may be added to Config, any
 // methods or attributes may be added to Result, and any complexity in the creation
 // of Result maybe be added to the Component.New method. To then use this basic
 // example as a component you would:
 //
-//  r := new(Result)
-//  err := NewComponent(context.Background(), source, &Component{}, r)
+//	r := new(Result)
+//	err := NewComponent(context.Background(), source, &Component{}, r)
 //
 // If the resulting error is nil then the destination value, r in this case, now
 // points to the output of the Component.New method. The method returns an error any
