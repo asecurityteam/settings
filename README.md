@@ -1,8 +1,6 @@
 <a id="markdown-settings---typed-configuration-toolkit-for-go" name="settings---typed-configuration-toolkit-for-go"></a>
 # Settings - Typed Configuration Toolkit For Go
 [![GoDoc](https://godoc.org/github.com/asecurityteam/settings?status.svg)](https://godoc.org/github.com/asecurityteam/settings)
-[![Build Status](https://travis-ci.com/asecurityteam/settings.png?branch=master)](https://travis-ci.com/asecurityteam/settings)
-[![codecov.io](https://codecov.io/github/asecurityteam/settings/coverage.svg?branch=master)](https://codecov.io/github/asecurityteam/settings?branch=master)
 
 *Status: Incubation*
 
