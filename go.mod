@@ -1,4 +1,4 @@
-module github.com/asecurityteam/settings
+module github.com/asecurityteam/settings/v2
 
 go 1.22
 
