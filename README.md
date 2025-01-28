@@ -2,6 +2,18 @@
 # Settings - Typed Configuration Toolkit For Go
 [![GoDoc](https://godoc.org/github.com/asecurityteam/settings?status.svg)](https://godoc.org/github.com/asecurityteam/settings)
 
+[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=asecurityteam_settings&metric=bugs)](https://sonarcloud.io/dashboard?id=asecurityteam_settings)
+[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=asecurityteam_settings&metric=code_smells)](https://sonarcloud.io/dashboard?id=asecurityteam_settings)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=asecurityteam_settings&metric=coverage)](https://sonarcloud.io/dashboard?id=asecurityteam_settings)
+[![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=asecurityteam_settings&metric=duplicated_lines_density)](https://sonarcloud.io/dashboard?id=asecurityteam_settings)
+[![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=asecurityteam_settings&metric=ncloc)](https://sonarcloud.io/dashboard?id=asecurityteam_settings)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=asecurityteam_settings&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=asecurityteam_settings)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=asecurityteam_settings&metric=alert_status)](https://sonarcloud.io/dashboard?id=asecurityteam_settings)
+[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=asecurityteam_settings&metric=reliability_rating)](https://sonarcloud.io/dashboard?id=asecurityteam_settings)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=asecurityteam_settings&metric=security_rating)](https://sonarcloud.io/dashboard?id=asecurityteam_settings)
+[![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=asecurityteam_settings&metric=sqale_index)](https://sonarcloud.io/dashboard?id=asecurityteam_settings)
+[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=asecurityteam_settings&metric=vulnerabilities)](https://sonarcloud.io/dashboard?id=asecurityteam_settings)
+
 *Status: Incubation*
 
 <!-- TOC -->
