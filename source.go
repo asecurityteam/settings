@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"os"
 	"regexp"
 	"strings"
@@ -180,7 +180,7 @@ func NewFileSource(path string) (*MapSource, error) {
 			fmt.Printf("Error closing file: %s\n", cerr)
 		}
 	}()
-	b, err := ioutil.ReadAll(f)
+	b, err := io.ReadAll(f)
 	if err != nil {
 		return nil, err
 	}
