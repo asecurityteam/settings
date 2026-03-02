@@ -25,7 +25,7 @@ func yamlTypeDisplay(v interface{}) string {
 	if t.Kind() == reflect.Slice {
 		b := bytes.NewBufferString("\n")
 		for x := 0; x < vv.Len(); x = x + 1 {
-			b.WriteString(fmt.Sprintf("  - %s\n", yamlTypeDisplay(vv.Index(x).Interface())))
+			fmt.Fprintf(b, "  - %s\n", yamlTypeDisplay(vv.Index(x).Interface()))
 		}
 		return b.String()
 	}
@@ -105,7 +105,7 @@ func envTypeDisplay(v interface{}) string {
 		b := bytes.NewBufferString(`"`)
 		for x := 0; x < vv.Len()-1; x = x + 1 {
 			d := envTypeDisplay(vv.Index(x).Interface())
-			_, _ = b.WriteString(fmt.Sprintf("%s ", strings.Trim(d, `"`)))
+			fmt.Fprintf(b, "%s ", strings.Trim(d, `"`))
 		}
 		if vv.Len() > 0 {
 			d := envTypeDisplay(vv.Index(vv.Len() - 1).Interface())
