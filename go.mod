@@ -1,6 +1,6 @@
 module github.com/asecurityteam/settings/v2
 
-go 1.22
+go 1.27.1
 
 require (
 	github.com/andreyvit/diff v0.0.0-20170406064948-c7f18ee00883
